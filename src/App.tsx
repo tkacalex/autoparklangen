@@ -5,6 +5,7 @@ import {
   Car,
   Check,
   ExternalLink,
+  FileText,
   Mail,
   MapPin,
   Phone,
@@ -72,16 +73,21 @@ function Header() {
         </span>
       </a>
       <nav className="desktop-nav" aria-label="Hauptnavigation">
-        {navItems.map((item) => (
-          <a key={item.href} href={item.href}>
+        {navItems.map((item, index) => (
+          <a key={item.href} href={item.href} className={index === 0 ? 'active' : undefined}>
             {item.label}
           </a>
         ))}
       </nav>
-      <a className="header-phone" href={contact.phoneHref}>
-        <Phone size={17} aria-hidden="true" />
-        <span>{contact.phone}</span>
-      </a>
+      <div className="header-actions">
+        <a className="header-phone" href={contact.phoneHref}>
+          <Phone size={17} aria-hidden="true" />
+          <span>{contact.phone}</span>
+        </a>
+        <a className="header-contact" href="/kontakt">
+          Kontakt aufnehmen
+        </a>
+      </div>
     </header>
   )
 }
@@ -103,11 +109,10 @@ function HeroSection() {
   return (
     <section className="hero-section" id="home">
       <div className="hero-media" aria-hidden="true">
-        <img src="/images/gallery-1.jpg" alt="" fetchPriority="high" />
+        <img src="/images/hero-reference.jpg" alt="" fetchPriority="high" />
       </div>
       <div className="section-shell hero-grid">
         <div className="hero-copy">
-          <img className="hero-logo" src="/logo.png" alt="Autopark Langen Logo" />
           <h1>Autopark Langen</h1>
           <p className="hero-lead">Gebrauchtwagen und Nutzfahrzeuge zu fairen Preisen in Langen</p>
           <p className="hero-text">
@@ -116,32 +121,17 @@ function HeroSection() {
           </p>
           <div className="hero-actions" aria-label="Direkte Aktionen">
             <a className="button button-primary" href="#fahrzeugbestand">
+              <FileText size={18} aria-hidden="true" />
               Fahrzeugbestand ansehen
             </a>
             <a className="button button-secondary" href="/kontakt">
+              <Phone size={18} aria-hidden="true" />
               Kontakt aufnehmen
             </a>
             <a className="button button-ghost" href={mapsUrl} target="_blank" rel="noreferrer">
-              <Route size={18} aria-hidden="true" />
+              <MapPin size={18} aria-hidden="true" />
               Route planen
             </a>
-          </div>
-        </div>
-        <div className="hero-panel">
-          <div>
-            <span>Adresse</span>
-            <strong>{contact.street}</strong>
-            <small>{contact.city}</small>
-          </div>
-          <div>
-            <span>Öffnungszeiten</span>
-            <strong>Mo bis Fr</strong>
-            <small>10:00 bis 12:00 und 13:00 bis 18:00</small>
-          </div>
-          <div>
-            <span>Schwerpunkt</span>
-            <strong>Transporter und Kastenwagen</strong>
-            <small>inkl. Sortimo/Würth Regalsysteme, wenn verfügbar</small>
           </div>
         </div>
       </div>
@@ -165,35 +155,29 @@ function InventorySection() {
       <div className="section-shell">
         <div className="section-heading split-heading">
           <div>
-            <span className="section-kicker">Fahrzeugbestand</span>
             <h2>Aktuelle Auswahl aus unserem Fahrzeugbestand</h2>
-            <p>
-              Schwerpunkte sind Transporter, Kastenwagen, Kastenwagen hoch/lang, Kombi/Kleinbus bis 9
-              Sitze, Koffer und Kühlkastenwagen. Im Bestand finden sich unter anderem Ford, Renault,
-              Opel, Mercedes-Benz und Peugeot.
-            </p>
           </div>
           <div className="inventory-actions">
+            <a className="button button-dark" href={mobileInventoryUrl} target="_blank" rel="noreferrer">
+              Alle Fahrzeuge auf mobile.de ansehen
+              <ExternalLink size={16} aria-hidden="true" />
+            </a>
             <button type="button" className="icon-button" onClick={() => scroll('left')} aria-label="Zurück">
               <ArrowLeft size={20} aria-hidden="true" />
             </button>
             <button type="button" className="icon-button" onClick={() => scroll('right')} aria-label="Weiter">
               <ArrowRight size={20} aria-hidden="true" />
             </button>
-            <a className="button button-dark" href={mobileInventoryUrl} target="_blank" rel="noreferrer">
-              Alle Fahrzeuge auf mobile.de ansehen
-              <ExternalLink size={16} aria-hidden="true" />
-            </a>
           </div>
         </div>
 
-        <div className="inventory-source">
+        <div className="inventory-source visually-hidden">
           <span>{inventory.note}</span>
           <span>Datenstand: {formatDate(inventory.fetchedAt)}</span>
         </div>
 
         <div className="vehicle-carousel" ref={carouselRef} tabIndex={0} aria-label="Fahrzeugkarussell">
-          {vehicles.slice(0, 8).map((vehicle) => (
+          {vehicles.slice(0, 5).map((vehicle) => (
             <VehicleCard key={vehicle.id} vehicle={vehicle} />
           ))}
         </div>
@@ -228,43 +212,21 @@ function VehicleCard({ vehicle, compact = false }: { vehicle: Vehicle; compact?:
             <h3>{vehicle.title}</h3>
             <ExternalLink size={16} aria-hidden="true" />
           </div>
+          <div className="vehicle-facts">
+            <span>EZ {vehicle.firstRegistration}</span>
+            <span>{vehicle.mileage}</span>
+            <span>{vehicle.power}</span>
+            <span>{vehicle.fuel}</span>
+            <span>{vehicle.category}</span>
+          </div>
           <div className="vehicle-price">
             {vehicle.priceGross && <strong>{vehicle.priceGross}</strong>}
             {vehicle.priceNet && <span>{vehicle.priceNet}</span>}
           </div>
-          <dl className="vehicle-facts">
-            {vehicle.firstRegistration && (
-              <>
-                <dt>EZ</dt>
-                <dd>{vehicle.firstRegistration}</dd>
-              </>
-            )}
-            {vehicle.mileage && (
-              <>
-                <dt>KM</dt>
-                <dd>{vehicle.mileage}</dd>
-              </>
-            )}
-            {vehicle.power && (
-              <>
-                <dt>Leistung</dt>
-                <dd>{vehicle.power}</dd>
-              </>
-            )}
-            {vehicle.fuel && (
-              <>
-                <dt>Kraftstoff</dt>
-                <dd>{vehicle.fuel}</dd>
-              </>
-            )}
-            {vehicle.category && (
-              <>
-                <dt>Typ</dt>
-                <dd>{vehicle.category}</dd>
-              </>
-            )}
-          </dl>
-          <span className="vehicle-link">Details auf mobile.de</span>
+          <span className="vehicle-link">
+            Details auf mobile.de
+            <ExternalLink size={13} aria-hidden="true" />
+          </span>
         </div>
       </a>
     </article>
